@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palavras que Voam | Clientes</title>
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="../js/sessao.js"></script>
+</head>
+<body onload="validarSessao(); listar()">
+
+  <div class="sidebar">
+    <div class="logo">📚 Palavras<br><span>que</span> Voam</div>
+    <div class="usuario-info">Olá, <strong id="b_usuario">usuário</strong>!</div>
+    <hr class="nav-separador">
+    <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+    <a href="livros.html"    class="nav-item">📖 Livros</a>
+    <a href="clientes.html"  class="nav-item ativo">👤 Clientes</a>
+    <a href="locais.html"    class="nav-item">🏫 Escolas e Praças</a>
+    <a href="eventos.html"   class="nav-item">🎪 Eventos</a>
+    <a href="vendas.html"    class="nav-item">💰 Vendas</a>
+    <hr class="nav-separador">
+    <button class="btn-sair" onclick="limparSessao()">🚪 Sair</button>
+  </div>
+
+  <div class="conteudo">
+    <div class="page-header">
+      <h2>👤 Gerenciar Clientes</h2>
+    </div>
+
+    <div class="card-painel">
+      <h3 id="titulo_form">➕ Cadastrar novo cliente</h3>
+      <input type="hidden" id="id_editando" />
+      <div class="form-grid">
+        <div class="campo campo-full">
+          <label>Nome completo: *</label>
+          <input id="campo_nome" type="text" placeholder="Ex: Maria da Silva" />
+        </div>
+        <div class="campo">
+          <label>E-mail:</label>
+          <input id="campo_email" type="email" placeholder="Ex: maria@email.com" />
+        </div>
+        <div class="campo">
+          <label>Telefone:</label>
+          <input id="campo_telefone" type="text" placeholder="Ex: (11) 99999-9999" />
+        </div>
+      </div>
+      <div class="form-acoes">
+        <button class="btn-secundario" onclick="limparForm()">Cancelar</button>
+        <button class="btn-primario" onclick="salvar()">💾 Salvar</button>
+      </div>
+    </div>
+
+    <div class="card-painel">
+      <h3>📋 Clientes cadastrados</h3>
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="tabela_clientes">
+            <tr><td colspan="5" style="text-align:center;padding:24px;color:#ccc;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</body>
+</html>
+
+<script>
+  function listar() {
+    fetch("/clientes/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (clientes) {
+        var tabela = document.getElementById("tabela_clientes");
+        if (!clientes || clientes.length === 0) {
+          tabela.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:#ccc;">Nenhum cliente cadastrado.</td></tr>';
+          return;
+        }
+        tabela.innerHTML = "";
+        clientes.forEach(function (c) {
+          tabela.innerHTML += `
+            <tr>
+              <td>${c.id}</td>
+              <td><strong>${c.nome}</strong></td>
+              <td>${c.email || "—"}</td>
+              <td>${c.telefone || "—"}</td>
+              <td class="acoes-td">
+                <button class="btn-editar" onclick="carregarEdicao(${c.id},'${esc(c.nome)}','${esc(c.email||"")}','${esc(c.telefone||"")}')">✏️ Editar</button>
+                <button class="btn-perigo" onclick="deletar(${c.id})">🗑️ Excluir</button>
+              </td>
+            </tr>`;
+        });
+      }).catch(console.log);
+  }
+
+  function esc(s) { return String(s).replace(/'/g, "\\'"); }
+
+  function salvar() {
+    var id       = document.getElementById("id_editando").value;
+    var nome     = document.getElementById("campo_nome").value;
+    var email    = document.getElementById("campo_email").value;
+    var telefone = document.getElementById("campo_telefone").value;
+
+    if (!nome) { mostrarToast("Nome é obrigatório!", "erro"); return; }
+
+    var url = id ? `/clientes/editar/${id}` : "/clientes/cadastrar";
+    var method = id ? "PUT" : "POST";
+
+    fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, email, telefone })
+    }).then(r => {
+      if (r.ok) { mostrarToast(id ? "Cliente atualizado!" : "Cliente cadastrado!", "sucesso"); limparForm(); listar(); }
+      else mostrarToast("Erro ao salvar.", "erro");
+    }).catch(console.log);
+  }
+
+  function carregarEdicao(id, nome, email, telefone) {
+    document.getElementById("id_editando").value   = id;
+    document.getElementById("campo_nome").value    = nome;
+    document.getElementById("campo_email").value   = email;
+    document.getElementById("campo_telefone").value = telefone;
+    document.getElementById("titulo_form").innerHTML = "✏️ Editando cliente #" + id;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function deletar(id) {
+    if (!confirm("Deseja excluir este cliente?")) return;
+    fetch(`/clientes/deletar/${id}`, { method: "DELETE" })
+      .then(r => { if (r.ok) { mostrarToast("Cliente excluído!", "sucesso"); listar(); } else mostrarToast("Erro ao excluir.", "erro"); })
+      .catch(console.log);
+  }
+
+  function limparForm() {
+    ["id_editando","campo_nome","campo_email","campo_telefone"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("titulo_form").innerHTML = "➕ Cadastrar novo cliente";
+  }
+
+  function mostrarToast(msg, tipo) {
+    var t = document.getElementById("toast");
+    t.innerHTML = msg;
+    t.style.borderLeftColor = tipo === "sucesso" ? "#2e7d32" : "#e53935";
+    t.style.display = "block";
+    setTimeout(() => t.style.display = "none", 3500);
+  }
+</script>

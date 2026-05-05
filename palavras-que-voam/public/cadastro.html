@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palavras que Voam | Cadastro</title>
+  <script src="./js/sessao.js"></script>
+  <link rel="stylesheet" href="./css/estilo.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="container">
+      <h1 class="titulo">Palavras <span>que</span> Voam</h1>
+      <ul class="navbar">
+        <li><a href="index.html">Início</a></li>
+        <li class="separador">|</li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="cadastro.html" class="btn-nav-header">Cadastrar</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="alerta_erro">
+    <div class="card_erro" id="cardErro">
+      <span id="mensagem_erro"></span>
+    </div>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div class="pagina-login">
+    <div class="container">
+      <div class="card-form">
+        <h2>📝 Criar conta</h2>
+        <p class="subtitulo">Preencha os dados para se cadastrar</p>
+
+        <div class="formulario">
+          <div class="campo">
+            <span>Nome completo:</span>
+            <input id="nome_input" type="text" placeholder="Seu nome" />
+          </div>
+          <div class="campo">
+            <span>E-mail:</span>
+            <input id="email_input" type="email" placeholder="seu@email.com" />
+          </div>
+          <div class="campo">
+            <span>Senha:</span>
+            <input id="senha_input" type="password" placeholder="••••••" />
+          </div>
+          <div class="campo">
+            <span>Confirmar senha:</span>
+            <input id="confirmacao_senha_input" type="password" placeholder="••••••" />
+          </div>
+          <button class="botao" onclick="cadastrar()">Cadastrar</button>
+        </div>
+
+        <div id="div_aguardar" class="loading-div">
+          <img src="./assets/circle-loading.gif" />
+        </div>
+        <div id="div_erros_login"></div>
+
+        <p style="margin-top:16px; font-size:14px; color:#999;">
+          Já tem conta? <a href="login.html" style="color:#F7941D; font-weight:800;">Faça login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="container">
+      <span>📚 Palavras que Voam &mdash; Sistema de Gestão</span>
+      <span style="font-size:12px; opacity:0.8;">v1.0.0</span>
+    </div>
+  </div>
+
+</body>
+</html>
+
+<script>
+  function cadastrar() {
+    var nomeVar              = nome_input.value;
+    var emailVar             = email_input.value;
+    var senhaVar             = senha_input.value;
+    var confirmacaoSenhaVar  = confirmacao_senha_input.value;
+
+    if (nomeVar == "" || emailVar == "" || senhaVar == "" || confirmacaoSenhaVar == "") {
+      mostrarToast("Preencha todos os campos!", "erro");
+      return false;
+    }
+
+    if (senhaVar !== confirmacaoSenhaVar) {
+      mostrarToast("As senhas não coincidem!", "erro");
+      return false;
+    }
+
+    fetch("/usuarios/cadastrar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nomeServer: nomeVar, emailServer: emailVar, senhaServer: senhaVar })
+    })
+    .then(function (resposta) {
+      if (resposta.ok) {
+        mostrarToast("Cadastro realizado! Redirecionando...", "sucesso");
+        setTimeout(function () { window.location = "login.html"; }, 2000);
+      } else {
+        mostrarToast("Erro ao cadastrar. Tente novamente.", "erro");
+      }
+    })
+    .catch(function (erro) {
+      console.log(erro);
+    });
+
+    return false;
+  }
+</script>

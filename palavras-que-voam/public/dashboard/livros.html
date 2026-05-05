@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palavras que Voam | Livros</title>
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="../js/sessao.js"></script>
+</head>
+<body onload="validarSessao(); listar()">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">📚 Palavras<br><span>que</span> Voam</div>
+    <div class="usuario-info">Olá, <strong id="b_usuario">usuário</strong>!</div>
+    <hr class="nav-separador">
+    <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+    <a href="livros.html"    class="nav-item ativo">📖 Livros</a>
+    <a href="clientes.html"  class="nav-item">👤 Clientes</a>
+    <a href="locais.html"    class="nav-item">🏫 Escolas e Praças</a>
+    <a href="eventos.html"   class="nav-item">🎪 Eventos</a>
+    <a href="vendas.html"    class="nav-item">💰 Vendas</a>
+    <hr class="nav-separador">
+    <button class="btn-sair" onclick="limparSessao()">🚪 Sair</button>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="conteudo">
+    <div class="page-header">
+      <h2>📖 Gerenciar Livros</h2>
+    </div>
+
+    <!-- Formulário Cadastro/Edição -->
+    <div class="card-painel">
+      <h3 id="titulo_form">➕ Cadastrar novo livro</h3>
+      <input type="hidden" id="id_editando" />
+
+      <div class="form-grid">
+        <div class="campo">
+          <label>Título: *</label>
+          <input id="campo_titulo" type="text" placeholder="Ex: O Pequeno Príncipe" />
+        </div>
+        <div class="campo">
+          <label>Autor: *</label>
+          <input id="campo_autor" type="text" placeholder="Ex: Antoine de Saint-Exupéry" />
+        </div>
+        <div class="campo">
+          <label>ISBN:</label>
+          <input id="campo_isbn" type="text" placeholder="Ex: 978-85-123-4567-8" />
+        </div>
+        <div class="campo">
+          <label>Gênero Literário:</label>
+          <input id="campo_genero" type="text" placeholder="Ex: Aventura, Ficção..." />
+        </div>
+        <div class="campo">
+          <label>Faixa Etária Indicada (anos):</label>
+          <input id="campo_idade" type="number" min="0" placeholder="Ex: 8" />
+        </div>
+        <div class="campo">
+          <label>Qtd. em Estoque: *</label>
+          <input id="campo_estoque" type="number" min="0" placeholder="Ex: 10" />
+        </div>
+      </div>
+
+      <div class="form-acoes">
+        <button class="btn-secundario" onclick="limparForm()">Cancelar</button>
+        <button class="btn-primario" onclick="salvar()">💾 Salvar</button>
+      </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card-painel">
+      <h3>📋 Acervo cadastrado</h3>
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Gênero</th>
+              <th>Faixa Etária</th>
+              <th>Estoque</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela_livros">
+            <tr><td colspan="7" style="text-align:center; padding:24px; color:#ccc;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</body>
+</html>
+
+<script>
+  function listar() {
+    fetch("/livros/listar")
+      .then(function (r) {
+        if (r.status === 204) return [];
+        return r.json();
+      })
+      .then(function (livros) {
+        var tabela = document.getElementById("tabela_livros");
+
+        if (!livros || livros.length === 0) {
+          tabela.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#ccc;">Nenhum livro cadastrado ainda.</td></tr>';
+          return;
+        }
+
+        tabela.innerHTML = "";
+        livros.forEach(function (l) {
+          var badgeClass = l.quantidade_estoque === 0 ? "badge-zero" : l.quantidade_estoque <= 3 ? "badge-baixo" : "badge-ok";
+          tabela.innerHTML += `
+            <tr>
+              <td>${l.id}</td>
+              <td><strong>${l.titulo}</strong></td>
+              <td>${l.autor}</td>
+              <td>${l.genero || "—"}</td>
+              <td>${l.idade_indicada ? l.idade_indicada + " anos" : "—"}</td>
+              <td><span class="badge-estoque ${badgeClass}">${l.quantidade_estoque}</span></td>
+              <td class="acoes-td">
+                <button class="btn-editar" onclick="carregarEdicao(${l.id}, '${escapar(l.titulo)}', '${escapar(l.autor)}', '${escapar(l.isbn || "")}', '${escapar(l.genero || "")}', ${l.idade_indicada || 0}, ${l.quantidade_estoque})">✏️ Editar</button>
+                <button class="btn-perigo" onclick="deletar(${l.id})">🗑️ Excluir</button>
+              </td>
+            </tr>`;
+        });
+      })
+      .catch(function (e) { console.log(e); });
+  }
+
+  function escapar(str) {
+    return String(str).replace(/'/g, "\\'");
+  }
+
+  function salvar() {
+    var id       = document.getElementById("id_editando").value;
+    var titulo   = document.getElementById("campo_titulo").value;
+    var autor    = document.getElementById("campo_autor").value;
+    var isbn     = document.getElementById("campo_isbn").value;
+    var genero   = document.getElementById("campo_genero").value;
+    var idade    = document.getElementById("campo_idade").value || 0;
+    var estoque  = document.getElementById("campo_estoque").value;
+
+    if (!titulo || !autor || estoque === "") {
+      mostrarToast("Preencha os campos obrigatórios (*)!", "erro"); return;
+    }
+
+    var url    = id ? `/livros/editar/${id}` : "/livros/cadastrar";
+    var method = id ? "PUT" : "POST";
+
+    fetch(url, {
+      method: method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ titulo, autor, isbn, genero, idadeIndicada: idade, quantidadeEstoque: estoque })
+    })
+    .then(function (r) {
+      if (r.ok) {
+        mostrarToast(id ? "Livro atualizado!" : "Livro cadastrado!", "sucesso");
+        limparForm();
+        listar();
+      } else {
+        mostrarToast("Erro ao salvar livro.", "erro");
+      }
+    }).catch(console.log);
+  }
+
+  function carregarEdicao(id, titulo, autor, isbn, genero, idade, estoque) {
+    document.getElementById("id_editando").value    = id;
+    document.getElementById("campo_titulo").value   = titulo;
+    document.getElementById("campo_autor").value    = autor;
+    document.getElementById("campo_isbn").value     = isbn;
+    document.getElementById("campo_genero").value   = genero;
+    document.getElementById("campo_idade").value    = idade;
+    document.getElementById("campo_estoque").value  = estoque;
+    document.getElementById("titulo_form").innerHTML = "✏️ Editando livro #" + id;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function deletar(id) {
+    if (!confirm("Deseja excluir este livro?")) return;
+    fetch(`/livros/deletar/${id}`, { method: "DELETE" })
+      .then(function (r) {
+        if (r.ok) { mostrarToast("Livro excluído!", "sucesso"); listar(); }
+        else mostrarToast("Erro ao excluir.", "erro");
+      }).catch(console.log);
+  }
+
+  function limparForm() {
+    document.getElementById("id_editando").value   = "";
+    document.getElementById("campo_titulo").value  = "";
+    document.getElementById("campo_autor").value   = "";
+    document.getElementById("campo_isbn").value    = "";
+    document.getElementById("campo_genero").value  = "";
+    document.getElementById("campo_idade").value   = "";
+    document.getElementById("campo_estoque").value = "";
+    document.getElementById("titulo_form").innerHTML = "➕ Cadastrar novo livro";
+  }
+
+  function mostrarToast(msg, tipo) {
+    var t = document.getElementById("toast");
+    t.innerHTML = msg;
+    t.style.borderLeftColor = tipo === "sucesso" ? "#2e7d32" : "#e53935";
+    t.style.display = "block";
+    setTimeout(function () { t.style.display = "none"; }, 3500);
+  }
+</script>

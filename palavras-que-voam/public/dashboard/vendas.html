@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palavras que Voam | Vendas</title>
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="../js/sessao.js"></script>
+</head>
+<body onload="validarSessao(); carregarSelects(); listar()">
+
+  <div class="sidebar">
+    <div class="logo">📚 Palavras<br><span>que</span> Voam</div>
+    <div class="usuario-info">Olá, <strong id="b_usuario">usuário</strong>!</div>
+    <hr class="nav-separador">
+    <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+    <a href="livros.html"    class="nav-item">📖 Livros</a>
+    <a href="clientes.html"  class="nav-item">👤 Clientes</a>
+    <a href="locais.html"    class="nav-item">🏫 Escolas e Praças</a>
+    <a href="eventos.html"   class="nav-item">🎪 Eventos</a>
+    <a href="vendas.html"    class="nav-item ativo">💰 Vendas</a>
+    <hr class="nav-separador">
+    <button class="btn-sair" onclick="limparSessao()">🚪 Sair</button>
+  </div>
+
+  <div class="conteudo">
+    <div class="page-header">
+      <h2>💰 Registrar Venda</h2>
+    </div>
+
+    <!-- Formulário nova venda -->
+    <div class="card-painel">
+      <h3>🛒 Nova venda</h3>
+      <div class="form-grid">
+        <div class="campo">
+          <label>Evento: *</label>
+          <select id="sel_evento">
+            <option value="">Selecione o evento...</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Cliente (opcional):</label>
+          <select id="sel_cliente">
+            <option value="">Venda sem cliente identificado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Itens da venda -->
+      <div style="margin-top: 20px;">
+        <h3 style="font-size:1rem; color:#F7941D; margin-bottom:12px;">📦 Itens da venda</h3>
+        <div id="container_itens"></div>
+        <button class="btn-secundario" onclick="adicionarItem()" style="margin-top:8px;">
+          ➕ Adicionar livro
+        </button>
+      </div>
+
+      <div class="total-venda" id="div_total">Total: R$ 0,00</div>
+
+      <div class="form-acoes">
+        <button class="btn-secundario" onclick="limparVenda()">Cancelar</button>
+        <button class="btn-primario" onclick="registrarVenda()">✅ Confirmar Venda</button>
+      </div>
+    </div>
+
+    <!-- Histórico de vendas -->
+    <div class="card-painel">
+      <h3>📋 Histórico de vendas</h3>
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Data</th><th>Evento</th><th>Cliente</th><th>Total</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="tabela_vendas">
+            <tr><td colspan="6" style="text-align:center;padding:20px;color:#ccc;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</body>
+</html>
+
+<script>
+  var livrosDisponiveis = [];
+  var itensVenda = [];
+
+  function carregarSelects() {
+    // Livros
+    fetch("/livros/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (lista) {
+        livrosDisponiveis = lista;
+        if (itensVenda.length === 0) adicionarItem();
+      }).catch(console.log);
+
+    // Eventos
+    fetch("/eventos/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (lista) {
+        var sel = document.getElementById("sel_evento");
+        lista.forEach(ev => {
+          var data = new Date(ev.data_evento + "T00:00:00").toLocaleDateString("pt-BR");
+          sel.innerHTML += `<option value="${ev.id}">${ev.nome} (${data})</option>`;
+        });
+      }).catch(console.log);
+
+    // Clientes
+    fetch("/clientes/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (lista) {
+        var sel = document.getElementById("sel_cliente");
+        lista.forEach(c => sel.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
+      }).catch(console.log);
+  }
+
+  function adicionarItem() {
+    var idx = itensVenda.length;
+    itensVenda.push({ livroId: "", quantidade: 1, precoUnitario: 0 });
+
+    var options = livrosDisponiveis.map(l =>
+      `<option value="${l.id}" data-preco="0">${l.titulo} — ${l.autor} (estoque: ${l.quantidade_estoque})</option>`
+    ).join("");
+
+    var div = document.createElement("div");
+    div.className = "item-venda-linha";
+    div.id = "item_" + idx;
+    div.innerHTML = `
+      <div class="campo" style="flex:3">
+        <label>Livro: *</label>
+        <select onchange="atualizarItem(${idx}, 'livroId', this.value)">
+          <option value="">Selecione o livro...</option>
+          ${options}
+        </select>
+      </div>
+      <div class="campo" style="flex:1">
+        <label>Qtd.: *</label>
+        <input type="number" min="1" value="1" onchange="atualizarItem(${idx}, 'quantidade', this.value)" />
+      </div>
+      <div class="campo" style="flex:1">
+        <label>Preço unit. (R$): *</label>
+        <input type="number" min="0" step="0.01" placeholder="0,00" onchange="atualizarItem(${idx}, 'precoUnitario', this.value)" />
+      </div>
+      <div style="display:flex; align-items:flex-end; padding-bottom:4px;">
+        <button class="btn-perigo" onclick="removerItem(${idx})">🗑️</button>
+      </div>`;
+
+    document.getElementById("container_itens").appendChild(div);
+    calcularTotal();
+  }
+
+  function atualizarItem(idx, campo, valor) {
+    itensVenda[idx][campo] = campo === "livroId" ? valor : Number(valor);
+    calcularTotal();
+  }
+
+  function removerItem(idx) {
+    var div = document.getElementById("item_" + idx);
+    if (div) div.remove();
+    itensVenda[idx] = null;
+    calcularTotal();
+  }
+
+  function calcularTotal() {
+    var total = itensVenda
+      .filter(i => i !== null)
+      .reduce((soma, i) => soma + (i.quantidade * i.precoUnitario), 0);
+    document.getElementById("div_total").innerHTML = "Total: R$ " + total.toFixed(2).replace(".", ",");
+  }
+
+  function registrarVenda() {
+    var eventoId  = document.getElementById("sel_evento").value;
+    var clienteId = document.getElementById("sel_cliente").value || null;
+
+    if (!eventoId) { toast("Selecione um evento!", "erro"); return; }
+
+    var itens = itensVenda.filter(i => i !== null && i.livroId && i.quantidade > 0 && i.precoUnitario > 0);
+    if (itens.length === 0) { toast("Adicione ao menos um item válido!", "erro"); return; }
+
+    fetch("/vendas/registrar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventoId, clienteId, itens })
+    }).then(function (r) {
+      if (r.ok) {
+        r.json().then(function (json) {
+          toast(`Venda #${json.idVenda} registrada! Total: R$ ${Number(json.valorTotal).toFixed(2).replace(".", ",")}`, "sucesso");
+          limparVenda();
+          listar();
+        });
+      } else {
+        r.text().then(t => toast("Erro: " + t, "erro"));
+      }
+    }).catch(console.log);
+  }
+
+  function limparVenda() {
+    document.getElementById("sel_evento").value  = "";
+    document.getElementById("sel_cliente").value = "";
+    document.getElementById("container_itens").innerHTML = "";
+    itensVenda = [];
+    adicionarItem();
+    calcularTotal();
+  }
+
+  function listar() {
+    fetch("/vendas/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (lista) {
+        var tabela = document.getElementById("tabela_vendas");
+        if (!lista || lista.length === 0) {
+          tabela.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#ccc;">Nenhuma venda registrada.</td></tr>';
+          return;
+        }
+        tabela.innerHTML = "";
+        lista.forEach(function (v) {
+          var data = new Date(v.data_venda).toLocaleString("pt-BR");
+          var total = Number(v.valor_total).toFixed(2).replace(".", ",");
+          tabela.innerHTML += `<tr>
+            <td>${v.idVenda}</td>
+            <td>${data}</td>
+            <td>${v.nomeEvento || "—"}</td>
+            <td>${v.nomeCliente || "<em>Não identificado</em>"}</td>
+            <td><strong>R$ ${total}</strong></td>
+            <td class="acoes-td">
+              <button class="btn-perigo" onclick="deletar(${v.idVenda})">🗑️ Excluir</button>
+            </td></tr>`;
+        });
+      }).catch(console.log);
+  }
+
+  function deletar(id) {
+    if (!confirm("Excluir esta venda?")) return;
+    fetch(`/vendas/deletar/${id}`, { method: "DELETE" })
+      .then(r => { if (r.ok) { toast("Venda excluída!", "sucesso"); listar(); } else toast("Erro.", "erro"); })
+      .catch(console.log);
+  }
+
+  function toast(msg, tipo) {
+    var t = document.getElementById("toast");
+    t.innerHTML = msg;
+    t.style.borderLeftColor = tipo === "sucesso" ? "#2e7d32" : "#e53935";
+    t.style.display = "block";
+    setTimeout(() => t.style.display = "none", 4000);
+  }
+</script>

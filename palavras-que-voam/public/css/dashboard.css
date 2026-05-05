@@ -1,0 +1,375 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ── LAYOUT DASHBOARD ── */
+:root {
+  --laranja: #F7941D;
+  --laranja-escuro: #E8720C;
+  --roxo: #7B4FBE;
+  --cinza: #666666;
+  --sidebar-w: 220px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Nunito', sans-serif;
+  background-color: #fffaf5;
+  color: var(--cinza);
+  display: flex;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background-color: #fff;
+  border-right: 3px solid var(--laranja);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  gap: 8px;
+  z-index: 100;
+  box-shadow: 2px 0 12px rgba(247,148,29,0.1);
+  overflow-y: auto;
+}
+
+.sidebar .logo {
+  color: var(--laranja);
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 0 12px 16px;
+  border-bottom: 2px solid #f5e6d0;
+  width: 100%;
+  line-height: 1.3;
+}
+
+.sidebar .logo span { color: var(--roxo); }
+
+.sidebar .usuario-info {
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.sidebar .usuario-info strong {
+  display: block;
+  color: var(--laranja-escuro);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.nav-item {
+  width: 85%;
+  text-decoration: none;
+  color: var(--cinza);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-item:hover {
+  background-color: #fff3e0;
+  color: var(--laranja-escuro);
+}
+
+.nav-item.ativo {
+  background-color: var(--laranja);
+  color: #fff;
+}
+
+.nav-separador {
+  width: 85%;
+  border: none;
+  border-top: 1px solid #f0e6d6;
+  margin: 6px 0;
+}
+
+.btn-sair {
+  width: 85%;
+  margin-top: auto;
+  padding: 10px 14px;
+  background: transparent;
+  border: 2px solid var(--laranja);
+  border-radius: 10px;
+  color: var(--laranja);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sair:hover {
+  background-color: var(--laranja);
+  color: #fff;
+}
+
+/* ── CONTEÚDO PRINCIPAL ── */
+.conteudo {
+  margin-left: var(--sidebar-w);
+  width: calc(100% - var(--sidebar-w));
+  min-height: 100vh;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h2 {
+  color: var(--laranja-escuro);
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 0;
+  border-left: 5px solid var(--laranja);
+  padding-left: 12px;
+}
+
+/* ── CARDS NUMÉRICOS ── */
+.cards-numeros {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.numero-card {
+  background: linear-gradient(135deg, #fff8ee, #ffe0b2);
+  border: 2px solid var(--laranja);
+  border-radius: 14px;
+  padding: 20px 28px;
+  text-align: center;
+  flex: 1;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(247,148,29,0.12);
+}
+
+.numero-card p { margin: 0; font-size: 13px; color: var(--cinza); font-weight: 700; }
+.numero-card h3 { margin: 6px 0 0; font-size: 2rem; color: var(--laranja-escuro); font-weight: 900; }
+
+/* ── CARD PAINEL ── */
+.card-painel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(247,148,29,0.10);
+  border-top: 4px solid var(--laranja);
+}
+
+.card-painel h3 {
+  color: var(--laranja-escuro);
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin: 0 0 16px;
+}
+
+/* ── FORM GRID ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.campo-full { grid-column: 1 / -1; }
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo label, .campo span {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--cinza);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #fafafa;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: var(--laranja);
+  background-color: #fff8ee;
+}
+
+.form-acoes {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.btn-primario {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 10px 24px;
+  color: #fff;
+  background-color: var(--laranja);
+  transition: background-color 0.2s;
+}
+
+.btn-primario:hover { background-color: var(--laranja-escuro); }
+
+.btn-secundario {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: 2px solid var(--laranja);
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 10px 20px;
+  color: var(--laranja);
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.btn-secundario:hover { background-color: var(--laranja); color: #fff; }
+
+.btn-perigo {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: 2px solid #e53935;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 6px 14px;
+  color: #e53935;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.btn-perigo:hover { background-color: #e53935; color: #fff; }
+
+.btn-editar {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: 2px solid var(--laranja);
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 6px 14px;
+  color: var(--laranja);
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.btn-editar:hover { background-color: var(--laranja); color: #fff; }
+
+/* ── TABELA ── */
+.tabela-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead { background-color: var(--laranja); color: #fff; }
+thead th { padding: 13px 14px; font-weight: 800; text-align: left; }
+
+tbody tr { border-bottom: 1px solid #f0e6d6; }
+tbody tr:hover { background-color: #fff8ee; }
+tbody td { padding: 11px 14px; color: var(--cinza); }
+
+.acoes-td { display: flex; gap: 8px; }
+
+/* ── BADGES ── */
+.badge-estoque {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.badge-ok   { background: #e8f5e9; color: #2e7d32; }
+.badge-baixo { background: #fff3e0; color: #e65100; }
+.badge-zero  { background: #ffebee; color: #c62828; }
+
+/* ── TOAST ── */
+.toast {
+  display: none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #fff;
+  border-left: 5px solid var(--laranja);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--cinza);
+  z-index: 9999;
+  max-width: 300px;
+}
+
+/* ── CANVAS ── */
+canvas {
+  border-radius: 10px;
+  background: #fffaf5;
+  padding: 10px;
+  width: 100% !important;
+  max-height: 300px;
+}
+
+/* ── ITENS VENDA ── */
+.item-venda-linha {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  background: #fff8ee;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #f0e6d6;
+}
+
+.item-venda-linha .campo { flex: 1; }
+
+.total-venda {
+  text-align: right;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--laranja-escuro);
+  margin-top: 8px;
+}

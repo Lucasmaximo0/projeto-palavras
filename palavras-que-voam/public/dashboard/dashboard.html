@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palavras que Voam | Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="../js/sessao.js"></script>
+</head>
+<body onload="validarSessao(); carregarDados()">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">📚 Palavras<br><span>que</span> Voam</div>
+    <div class="usuario-info">Olá, <strong id="b_usuario">usuário</strong>!</div>
+
+    <hr class="nav-separador">
+    <a href="dashboard.html"    class="nav-item ativo">📊 Dashboard</a>
+    <a href="livros.html"       class="nav-item">📖 Livros</a>
+    <a href="clientes.html"     class="nav-item">👤 Clientes</a>
+    <a href="locais.html"       class="nav-item">🏫 Escolas e Praças</a>
+    <a href="eventos.html"      class="nav-item">🎪 Eventos</a>
+    <a href="vendas.html"       class="nav-item">💰 Vendas</a>
+    <hr class="nav-separador">
+
+    <button class="btn-sair" onclick="limparSessao()">🚪 Sair</button>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="conteudo">
+    <div class="page-header">
+      <h2>📊 Dashboard</h2>
+    </div>
+
+    <!-- Cards numéricos -->
+    <div class="cards-numeros">
+      <div class="numero-card">
+        <p>Total de Livros</p>
+        <h3 id="total_livros">—</h3>
+      </div>
+      <div class="numero-card">
+        <p>Total de Clientes</p>
+        <h3 id="total_clientes">—</h3>
+      </div>
+      <div class="numero-card">
+        <p>Eventos Realizados</p>
+        <h3 id="total_eventos">—</h3>
+      </div>
+      <div class="numero-card">
+        <p>Vendas Registradas</p>
+        <h3 id="total_vendas">—</h3>
+      </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="card-painel">
+      <h3>📈 Vendas por Evento</h3>
+      <canvas id="graficoVendas"></canvas>
+    </div>
+
+    <div class="card-painel">
+      <h3>📚 Livros com Menor Estoque</h3>
+      <canvas id="graficoEstoque"></canvas>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</body>
+</html>
+
+<script>
+  function carregarDados() {
+    // Total de livros
+    fetch("/livros/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (livros) {
+        document.getElementById("total_livros").innerHTML = livros.length || 0;
+
+        // Gráfico estoque
+        var labels = livros.slice(0, 8).map(l => l.titulo.substring(0, 20) + "...");
+        var dados  = livros.slice(0, 8).map(l => l.quantidade_estoque);
+
+        new Chart(document.getElementById("graficoEstoque"), {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Qtd. em Estoque",
+              data: dados,
+              backgroundColor: "rgba(247, 148, 29, 0.6)",
+              borderColor: "#F7941D",
+              borderWidth: 2,
+              borderRadius: 6
+            }]
+          },
+          options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+      }).catch(console.log);
+
+    // Total de clientes
+    fetch("/clientes/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (clientes) {
+        document.getElementById("total_clientes").innerHTML = clientes.length || 0;
+      }).catch(console.log);
+
+    // Eventos e vendas
+    fetch("/eventos/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (eventos) {
+        document.getElementById("total_eventos").innerHTML = eventos.length || 0;
+      }).catch(console.log);
+
+    fetch("/vendas/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (vendas) {
+        document.getElementById("total_vendas").innerHTML = vendas.length || 0;
+
+        // Gráfico vendas por evento
+        var contagem = {};
+        vendas.forEach(function (v) {
+          var nome = v.nomeEvento || "Sem evento";
+          contagem[nome] = (contagem[nome] || 0) + 1;
+        });
+
+        var labels = Object.keys(contagem);
+        var dados  = Object.values(contagem);
+
+        new Chart(document.getElementById("graficoVendas"), {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Vendas",
+              data: dados,
+              backgroundColor: "rgba(123, 79, 190, 0.6)",
+              borderColor: "#7B4FBE",
+              borderWidth: 2,
+              borderRadius: 6
+            }]
+          },
+          options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+      }).catch(console.log);
+  }
+</script>

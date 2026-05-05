@@ -1,0 +1,568 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ============================================================
+   PALAVRAS QUE VOAM — Estilo Principal
+   Paleta: Laranja #F7941D | Roxo #7B4FBE | Cinza #666 | Branco
+   ============================================================ */
+
+:root {
+  --laranja: #F7941D;
+  --laranja-escuro: #E8720C;
+  --roxo: #7B4FBE;
+  --cinza: #666666;
+  --cinza-claro: #f5f5f5;
+  --branco: #FFFFFF;
+  --sombra: 0 4px 16px rgba(247, 148, 29, 0.18);
+  --tamanho-header: 72px;
+  --tamanho-footer: 60px;
+  --tamanho-pagina: calc(100vh - var(--tamanho-header) - var(--tamanho-footer));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  background-color: #fffaf5;
+  color: var(--cinza);
+}
+
+/* ── CONTAINER ── */
+.container {
+  width: 85%;
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+}
+
+/* ── HEADER ── */
+.header {
+  height: var(--tamanho-header);
+  background-color: var(--branco);
+  border-bottom: 3px solid var(--laranja);
+  box-shadow: 0 2px 8px rgba(247, 148, 29, 0.15);
+}
+
+.header .container {
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.titulo {
+  color: var(--laranja);
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.titulo span {
+  color: var(--roxo);
+}
+
+.navbar {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar li a {
+  text-decoration: none;
+  color: var(--cinza);
+  font-weight: 700;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.navbar li a:hover {
+  color: var(--laranja);
+}
+
+.navbar .separador {
+  color: #ccc;
+}
+
+.navbar .btn-nav-header {
+  background-color: var(--laranja);
+  color: var(--branco) !important;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 800;
+  transition: background-color 0.2s !important;
+}
+
+.navbar .btn-nav-header:hover {
+  background-color: var(--laranja-escuro) !important;
+  color: var(--branco) !important;
+}
+
+/* ── FOOTER ── */
+.footer {
+  height: var(--tamanho-footer);
+  background-color: var(--laranja);
+  display: flex;
+  align-items: center;
+}
+
+.footer .container {
+  justify-content: center;
+  align-items: center;
+  color: var(--branco);
+  font-weight: 700;
+  font-size: 14px;
+  gap: 10px;
+}
+
+/* ── BANNER / HERO ── */
+.banner {
+  min-height: var(--tamanho-pagina);
+  background: linear-gradient(135deg, #fff8ee 0%, #fff3e0 60%, #ffe0b2 100%);
+  display: flex;
+  align-items: center;
+}
+
+.banner .container {
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 40px 0;
+}
+
+.banner h2 {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: var(--laranja-escuro);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.banner h2 span {
+  color: var(--roxo);
+}
+
+.banner p {
+  font-size: 1.1rem;
+  color: var(--cinza);
+  max-width: 520px;
+  margin: 0;
+}
+
+.banner .btn-hero {
+  background-color: var(--laranja);
+  color: var(--branco);
+  border: none;
+  border-radius: 30px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 8px;
+  box-shadow: var(--sombra);
+  transition: background-color 0.2s;
+}
+
+.banner .btn-hero:hover {
+  background-color: var(--laranja-escuro);
+}
+
+/* ── CARDS INFO (index) ── */
+.secao-cards {
+  background-color: var(--branco);
+  padding: 48px 0;
+}
+
+.secao-cards .container {
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.secao-cards h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--laranja-escuro);
+  margin: 0;
+  text-align: center;
+}
+
+.cards-grid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.card-info {
+  background: linear-gradient(135deg, #fff8ee, #fff3e0);
+  border: 2px solid var(--laranja);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 28%;
+  min-width: 200px;
+  text-align: center;
+  box-shadow: var(--sombra);
+}
+
+.card-info .icone {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+
+.card-info h4 {
+  color: var(--laranja-escuro);
+  font-size: 1.1rem;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.card-info p {
+  font-size: 0.92rem;
+  color: var(--cinza);
+  margin: 0;
+}
+
+/* ── LOGIN / CADASTRO ── */
+.pagina-login {
+  min-height: var(--tamanho-pagina);
+  background: linear-gradient(135deg, #fff8ee 0%, #ffe0b2 100%);
+  display: flex;
+  align-items: center;
+}
+
+.pagina-login .container {
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+.card-form {
+  background: var(--branco);
+  border-radius: 20px;
+  padding: 36px 40px;
+  width: 420px;
+  box-shadow: 0 8px 32px rgba(247, 148, 29, 0.18);
+  border-top: 5px solid var(--laranja);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-form h2 {
+  color: var(--laranja-escuro);
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.card-form .subtitulo {
+  color: var(--cinza);
+  font-size: 0.95rem;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 14px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.campo span, .campo label {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--cinza);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #fafafa;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: var(--laranja);
+  background-color: #fff8ee;
+}
+
+.botao,
+.btn-primario {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 12px 0;
+  color: var(--branco);
+  background-color: var(--laranja);
+  width: 100%;
+  margin-top: 4px;
+  transition: background-color 0.2s;
+  box-shadow: var(--sombra);
+}
+
+.botao:hover,
+.btn-primario:hover {
+  background-color: var(--laranja-escuro);
+}
+
+.btn-secundario {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: 2px solid var(--laranja);
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 8px 20px;
+  color: var(--laranja);
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.btn-secundario:hover {
+  background-color: var(--laranja);
+  color: var(--branco);
+}
+
+.btn-perigo {
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  border: 2px solid #e53935;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 8px 20px;
+  color: #e53935;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.btn-perigo:hover {
+  background-color: #e53935;
+  color: var(--branco);
+}
+
+/* ── ALERTA / TOAST ── */
+.alerta_erro {
+  display: flex;
+  justify-content: flex-end;
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.card_erro {
+  display: none;
+  background-color: var(--branco);
+  color: var(--cinza);
+  width: 280px;
+  border-radius: 10px;
+  border-left: 5px solid var(--laranja);
+  padding: 14px 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* ── LOADING ── */
+.loading-div {
+  width: 50px;
+  margin: 8px auto;
+  display: none;
+}
+
+.loading-div img {
+  height: 50px;
+  width: 50px;
+}
+
+#div_erros_login {
+  display: none;
+  color: #e53935;
+  font-weight: 700;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* ── PÁGINA INTERNA (dashboard) ── */
+.pagina-interna {
+  min-height: var(--tamanho-pagina);
+  background-color: #fffaf5;
+  padding: 32px 0;
+}
+
+.pagina-interna .container {
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pagina-interna h2 {
+  color: var(--laranja-escuro);
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 0;
+  border-left: 5px solid var(--laranja);
+  padding-left: 12px;
+}
+
+/* ── TABELA ── */
+.tabela-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--branco);
+  border-radius: 14px;
+  box-shadow: var(--sombra);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+thead {
+  background-color: var(--laranja);
+  color: var(--branco);
+}
+
+thead th {
+  padding: 14px 16px;
+  font-weight: 800;
+  text-align: left;
+}
+
+tbody tr {
+  border-bottom: 1px solid #f0e6d6;
+}
+
+tbody tr:hover {
+  background-color: #fff8ee;
+}
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--cinza);
+}
+
+/* ── FORMULÁRIO PÁGINA ── */
+.card-pagina {
+  background: var(--branco);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: var(--sombra);
+  border-top: 4px solid var(--laranja);
+}
+
+.card-pagina h3 {
+  color: var(--laranja-escuro);
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin: 0 0 20px 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-grid .campo-full {
+  grid-column: 1 / -1;
+}
+
+.form-acoes {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+/* ── DASHBOARD GRÁFICOS ── */
+.dashboard-graficos {
+  background-color: var(--branco);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--sombra);
+}
+
+.cards-numeros {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.numero-card {
+  background: linear-gradient(135deg, #fff8ee, #ffe0b2);
+  border: 2px solid var(--laranja);
+  border-radius: 14px;
+  padding: 20px 28px;
+  text-align: center;
+  flex: 1;
+  min-width: 140px;
+}
+
+.numero-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cinza);
+  font-weight: 700;
+}
+
+.numero-card h3 {
+  margin: 6px 0 0 0;
+  font-size: 2rem;
+  color: var(--laranja-escuro);
+  font-weight: 900;
+}
+
+canvas {
+  border-radius: 10px;
+  background: #fffaf5;
+  padding: 10px;
+  width: 100% !important;
+  max-height: 300px;
+}
+
+/* ── BADGE ESTOQUE ── */
+.badge-estoque {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.badge-ok { background: #e8f5e9; color: #2e7d32; }
+.badge-baixo { background: #fff3e0; color: #e65100; }
+.badge-zero { background: #ffebee; color: #c62828; }

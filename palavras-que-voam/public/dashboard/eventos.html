@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palavras que Voam | Eventos</title>
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <script src="../js/sessao.js"></script>
+</head>
+<body onload="validarSessao(); carregarLocais(); listar()">
+
+  <div class="sidebar">
+    <div class="logo">📚 Palavras<br><span>que</span> Voam</div>
+    <div class="usuario-info">Olá, <strong id="b_usuario">usuário</strong>!</div>
+    <hr class="nav-separador">
+    <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+    <a href="livros.html"    class="nav-item">📖 Livros</a>
+    <a href="clientes.html"  class="nav-item">👤 Clientes</a>
+    <a href="locais.html"    class="nav-item">🏫 Escolas e Praças</a>
+    <a href="eventos.html"   class="nav-item ativo">🎪 Eventos</a>
+    <a href="vendas.html"    class="nav-item">💰 Vendas</a>
+    <hr class="nav-separador">
+    <button class="btn-sair" onclick="limparSessao()">🚪 Sair</button>
+  </div>
+
+  <div class="conteudo">
+    <div class="page-header">
+      <h2>🎪 Gerenciar Eventos</h2>
+    </div>
+
+    <div class="card-painel">
+      <h3 id="titulo_form">➕ Cadastrar Evento</h3>
+      <input type="hidden" id="id_editando" />
+      <div class="form-grid">
+        <div class="campo campo-full">
+          <label>Nome do evento: *</label>
+          <input id="campo_nome" type="text" placeholder="Ex: Feira do Livro Infantil - Maio" />
+        </div>
+        <div class="campo">
+          <label>Data do evento: *</label>
+          <input id="campo_data" type="date" />
+        </div>
+        <div class="campo">
+          <label>Tipo de local: *</label>
+          <select id="campo_tipo" onchange="alternarLocal()">
+            <option value="">Selecione...</option>
+            <option value="escola">🏫 Escola</option>
+            <option value="praca">🌳 Praça / Feira</option>
+          </select>
+        </div>
+        <div class="campo" id="div_escola" style="display:none">
+          <label>Escola: *</label>
+          <select id="campo_escola">
+            <option value="">Selecione a escola...</option>
+          </select>
+        </div>
+        <div class="campo" id="div_praca" style="display:none">
+          <label>Praça / Local: *</label>
+          <select id="campo_praca">
+            <option value="">Selecione a praça...</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-acoes">
+        <button class="btn-secundario" onclick="limparForm()">Cancelar</button>
+        <button class="btn-primario" onclick="salvar()">💾 Salvar</button>
+      </div>
+    </div>
+
+    <div class="card-painel">
+      <h3>📋 Eventos cadastrados</h3>
+      <div class="tabela-wrapper">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nome</th><th>Data</th><th>Tipo</th><th>Local</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="tabela_eventos">
+            <tr><td colspan="6" style="text-align:center;padding:20px;color:#ccc;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</body>
+</html>
+
+<script>
+  var escolas = [];
+  var pracas  = [];
+
+  function carregarLocais() {
+    fetch("/escolas/listar").then(r => r.status === 200 ? r.json() : []).then(function (lista) {
+      escolas = lista;
+      var sel = document.getElementById("campo_escola");
+      sel.innerHTML = '<option value="">Selecione a escola...</option>';
+      lista.forEach(e => sel.innerHTML += `<option value="${e.id}">${e.nome} — ${e.cidade || ""}</option>`);
+    }).catch(console.log);
+
+    fetch("/pracas/listar").then(r => r.status === 200 ? r.json() : []).then(function (lista) {
+      pracas = lista;
+      var sel = document.getElementById("campo_praca");
+      sel.innerHTML = '<option value="">Selecione a praça...</option>';
+      lista.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.nome} — ${p.cidade || ""}</option>`);
+    }).catch(console.log);
+  }
+
+  function alternarLocal() {
+    var tipo = document.getElementById("campo_tipo").value;
+    document.getElementById("div_escola").style.display = tipo === "escola" ? "flex" : "none";
+    document.getElementById("div_praca").style.display  = tipo === "praca"  ? "flex" : "none";
+  }
+
+  function listar() {
+    fetch("/eventos/listar")
+      .then(r => r.status === 200 ? r.json() : [])
+      .then(function (lista) {
+        var tabela = document.getElementById("tabela_eventos");
+        if (!lista || lista.length === 0) {
+          tabela.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#ccc;">Nenhum evento cadastrado.</td></tr>';
+          return;
+        }
+        tabela.innerHTML = "";
+        lista.forEach(function (ev) {
+          var data  = new Date(ev.data_evento + "T00:00:00").toLocaleDateString("pt-BR");
+          var local = ev.tipo_local === "escola" ? (ev.nome_escola || "—") : (ev.nome_praca || "—");
+          var tipo  = ev.tipo_local === "escola" ? "🏫 Escola" : "🌳 Praça";
+          tabela.innerHTML += `<tr>
+            <td>${ev.id}</td>
+            <td><strong>${ev.nome}</strong></td>
+            <td>${data}</td>
+            <td>${tipo}</td>
+            <td>${local}</td>
+            <td class="acoes-td">
+              <button class="btn-perigo" onclick="deletar(${ev.id})">🗑️ Excluir</button>
+            </td></tr>`;
+        });
+      }).catch(console.log);
+  }
+
+  function salvar() {
+    var id       = document.getElementById("id_editando").value;
+    var nome     = document.getElementById("campo_nome").value;
+    var data     = document.getElementById("campo_data").value;
+    var tipo     = document.getElementById("campo_tipo").value;
+    var escolaId = document.getElementById("campo_escola").value || null;
+    var pracaId  = document.getElementById("campo_praca").value  || null;
+
+    if (!nome || !data || !tipo) { toast("Preencha os campos obrigatórios!", "erro"); return; }
+    if (tipo === "escola" && !escolaId) { toast("Selecione uma escola!", "erro"); return; }
+    if (tipo === "praca"  && !pracaId)  { toast("Selecione uma praça!", "erro"); return; }
+
+    fetch("/eventos/cadastrar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, dataEvento: data, tipoLocal: tipo, escolaId, pracaId })
+    }).then(r => {
+      if (r.ok) { toast("Evento cadastrado!", "sucesso"); limparForm(); listar(); }
+      else toast("Erro ao salvar.", "erro");
+    }).catch(console.log);
+  }
+
+  function deletar(id) {
+    if (!confirm("Excluir este evento?")) return;
+    fetch(`/eventos/deletar/${id}`, { method: "DELETE" })
+      .then(r => { if (r.ok) { toast("Evento excluído!", "sucesso"); listar(); } else toast("Erro.", "erro"); })
+      .catch(console.log);
+  }
+
+  function limparForm() {
+    ["id_editando","campo_nome","campo_data"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("campo_tipo").value   = "";
+    document.getElementById("campo_escola").value = "";
+    document.getElementById("campo_praca").value  = "";
+    document.getElementById("div_escola").style.display = "none";
+    document.getElementById("div_praca").style.display  = "none";
+    document.getElementById("titulo_form").innerHTML = "➕ Cadastrar Evento";
+  }
+
+  function toast(msg, tipo) {
+    var t = document.getElementById("toast");
+    t.innerHTML = msg;
+    t.style.borderLeftColor = tipo === "sucesso" ? "#2e7d32" : "#e53935";
+    t.style.display = "block";
+    setTimeout(() => t.style.display = "none", 3500);
+  }
+</script>
